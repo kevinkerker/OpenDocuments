@@ -190,6 +190,13 @@ enum ConfigSubcommands {
     },
 }
 
+const NO_PROVIDER_ERR: &str = "未設定任何 LLM provider，向量檢索後端無法建立";
+
+/// 無 provider 時可否改用內建 fastembed：需編入該功能且尚無任何文件。
+fn fastembed_fallback_allowed(indexed_documents: i64) -> bool {
+    cfg!(feature = "embedding-fastembed") && indexed_documents == 0
+}
+
 /// 建立向量檢索後端：讀取 llm_providers（優先 kind='embedding' 行，否則退化為 active chat
 /// provider + embedding_provider_name 當模型名）→ ByokEmbeddingProvider → SidecarRetriever。
 async fn build_search_backend(
@@ -265,7 +272,7 @@ async fn build_search_backend(
                             embed_model_name.clone(),
                         )
                     }
-                    _ => return Err("未設定任何 LLM provider，向量檢索後端無法建立".into()),
+                    _ => return Err(NO_PROVIDER_ERR.into()),
                 }
             }
         };
@@ -1056,9 +1063,31 @@ match sub {
                 }
             };
 
-            let search = build_search_backend(&app_cfg, &db_pool)
-                .await
-                .map_err(|e| format!("向量檢索後端初始化失敗: {e}"))?;
+            let search = match build_search_backend(&app_cfg, &db_pool).await {
+                // 首次啟動（無 provider、無文件）→ 改用內建 fastembed 並寫回設定，避免日後新增 chat
+                // provider 時 embedding 靜默換向量空間。已有文件則不切換（其向量來自其他 embedder）。
+                Err(e) if e == NO_PROVIDER_ERR => {
+                    let indexed: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM documents")
+                        .fetch_one(&db_pool)
+                        .await
+                        .unwrap_or(1);
+                    if fastembed_fallback_allowed(indexed) {
+                        let mut cfg = app_cfg.clone();
+                        cfg.model.embedding_backend = "fastembed".to_string();
+                        config_manager.update_config(cfg.clone()).await?;
+                        eprintln!("ℹ️ 未設定 LLM provider：改用內建本機 embedding（fastembed BGE-M3），已寫入 embedding_backend = \"fastembed\"。");
+                        eprintln!("⬇️ 首次啟動需下載模型，可能需要數分鐘…");
+                        build_search_backend(&cfg, &db_pool).await
+                    } else {
+                        Err(format!(
+                            "{e}。可於 {} 設定 embedding_backend = \"fastembed\"（需含 embedding-fastembed 功能，切換後須重新索引）",
+                            config_manager.get_config_path().display()
+                        ))
+                    }
+                }
+                other => other,
+            }
+            .map_err(|e| format!("向量檢索後端初始化失敗: {e}"))?;
 
             if mcp_only {
                 // 進入 stdio Local MCP 專用模式，絕不混淆
@@ -1136,4 +1165,9 @@ mod tests {
         assert_eq!(host, std::net::IpAddr::from([0, 0, 0, 0]));
     }
 
+    #[test]
+    fn fastembed_fallback_only_on_empty_index() {
+        assert_eq!(fastembed_fallback_allowed(0), cfg!(feature = "embedding-fastembed"));
+        assert!(!fastembed_fallback_allowed(1));
+    }
 }
