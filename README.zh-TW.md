@@ -4,13 +4,13 @@
 </p>
 
 <p align="center">
-  <a href="README.md">English</a> | 繁體中文 | <a href="https://cawa0505.github.io/OpenDocuments/">📚 官方文件網站</a>
+  <a href="README.md">English</a> | 繁體中文 | <a href="https://kevinkerker.github.io/OpenDocuments/">📚 官方文件網站</a>
 </p>
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="授權條款"></a>
   <a href="https://www.rust-lang.org"><img src="https://img.shields.io/badge/Rust-1.80%2B-orange.svg" alt="Rust 語言"></a>
-  <a href="https://github.com/cawa0505/OpenDocuments/releases"><img src="https://img.shields.io/badge/Release-v1.0.0-brightgreen.svg" alt="v1.0.0"></a>
+  <a href="https://github.com/kevinkerker/OpenDocuments/releases"><img src="https://img.shields.io/badge/Release-v1.0.0-brightgreen.svg" alt="v1.0.0"></a>
 </p>
 
 ---
@@ -69,11 +69,12 @@ Benchmark 1: opendoc document index admin_heavy.xlsx
 
 ```bash
 # 方法一：一鍵安裝腳本（預編譯二進位檔）
-curl -fsSL https://raw.githubusercontent.com/cawa0505/OpenDocuments/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/kevinkerker/OpenDocuments/main/install.sh | sh
 
 # 方法二：透過 Cargo 直接從 GitHub 安裝（Rust 開發者）
 # 注意：系統需安裝 'protoc' (protobuf 編譯器)。此處使用 RUSTC_BOOTSTRAP=1 來提高重度 Lance/Arrow 依賴的編譯器遞迴上限，並強制啟用 rustix libc 後端以避免內建屬性錯誤。
-RUSTC_BOOTSTRAP=1 RUSTFLAGS="-Z min-recursion-limit=512 --cfg=rustix_use_libc" cargo install --git https://github.com/cawa0505/OpenDocuments opendoc --force
+RUSTC_BOOTSTRAP=1 RUSTFLAGS="-Z min-recursion-limit=512 --cfg=rustix_use_libc" cargo install --git https://github.com/kevinkerker/OpenDocuments opendoc --features embedding-fastembed --force
+RUSTC_BOOTSTRAP=1 RUSTFLAGS="-Z min-recursion-limit=512 --cfg=rustix_use_libc" cargo install --git https://github.com/kevinkerker/OpenDocuments opendoc-engine-lancedb --force
 
 # 啟動 OpenDocuments
 opendoc start --port 3000
@@ -91,7 +92,7 @@ opendoc start --port 3000
 - 🗺️ **[多階段研發藍圖](docs/zh-TW/roadmap.md)**：從 MVP 單一二進位到 Tauri 2.0 行政工作艙與 MCP 生態發布器。
 - 📋 **[待開發任務清單與狀態](docs/zh-TW/tasks.md)**：Phase 1 當前開發任務、CLI 優化與後續待辦事項。
 - 📐 **[OpenSpec 系統規格](openspec/specs/)**：系統行為契約規格（標籤過濾、BYOK、工作區解析）。
-- 📖 **[官方文檔網站](https://cawa0505.github.io/OpenDocuments/)**：部署指南、API 參考與使用者手冊。
+- 📖 **[官方文檔網站](https://kevinkerker.github.io/OpenDocuments/)**：部署指南、API 參考與使用者手冊。
 
 ---
 
@@ -181,7 +182,7 @@ local_reranker_path = "~/.opendocuments/models/bge-reranker-base.onnx"
 下載並安裝預先編譯好的單一執行檔 (Linux / macOS)：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/cawa0505/OpenDocuments/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/kevinkerker/OpenDocuments/main/install.sh | sh
 ```
 
 **選項 B：從原始碼編譯**

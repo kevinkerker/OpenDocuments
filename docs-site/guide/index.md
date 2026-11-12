@@ -9,7 +9,7 @@ Get OpenDocuments running in under 5 minutes.
 To install the latest pre-compiled single-binary (Linux & macOS):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/cawa0505/OpenDocuments/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/kevinkerker/OpenDocuments/main/install.sh | sh
 ```
 
 ### Option 2: Cargo Install via GitHub (Rust Developers)
@@ -19,7 +19,8 @@ Requires `protoc` (protobuf compiler) installed on your system. We pass `RUSTC_B
 :::
 
 ```bash
-RUSTC_BOOTSTRAP=1 RUSTFLAGS="-Z min-recursion-limit=512 --cfg=rustix_use_libc" cargo install --git https://github.com/cawa0505/OpenDocuments opendoc --force
+RUSTC_BOOTSTRAP=1 RUSTFLAGS="-Z min-recursion-limit=512 --cfg=rustix_use_libc" cargo install --git https://github.com/kevinkerker/OpenDocuments opendoc --features embedding-fastembed --force
+RUSTC_BOOTSTRAP=1 RUSTFLAGS="-Z min-recursion-limit=512 --cfg=rustix_use_libc" cargo install --git https://github.com/kevinkerker/OpenDocuments opendoc-engine-lancedb --force
 ```
 
 ### Option 3: Build from Source
@@ -30,7 +31,7 @@ Prerequisites:
 
 ```bash
 # Clone the repository
-git clone https://github.com/cawa0505/OpenDocuments.git
+git clone https://github.com/kevinkerker/OpenDocuments.git
 cd OpenDocuments
 
 # Build the WebUI and install the Rust CLI automatically

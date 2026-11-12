@@ -88,3 +88,9 @@
 - [x] **2.2.1 `webui-dogfood-ux-hardening`**：即時答詢會話恢復有界化（逾時/取消/重試）、zh-TW i18n 補齊與用語修正、清單隱私（絕對路徑/UUID 收合）、同名文件辨識與刪除確認、檢索偏好單一狀態來源、空狀態文案映射、工作空間清單互動安全（§9 合規）。
   - 規格：[`openspec/changes/webui-dogfood-ux-hardening/proposal.md`](../../openspec/changes/webui-dogfood-ux-hardening/proposal.md)（proposal→specs→design→tasks，validate --strict 通過）
   - *驗證方式*：依 change specs 各 Scenario 瀏覽器逐條複驗；console 零 JS error。
+
+### 2.3 Windows 安裝（2026-11-12）
+
+- [ ] **2.3.1 `windows-install`**：Windows Release（zip 含 engine）與 `install.ps1`、各平台 Release 補 engine、`HOME`→`USERPROFILE` 後備、無 provider 首次啟動改用 fastembed、預設僅監聽 `127.0.0.1`（`--host`）。
+  - 規格：[`openspec/changes/windows-install/proposal.md`](../../openspec/changes/windows-install/proposal.md)
+  - *驗證方式*：單元測試；Windows 原生建置冒煙測試（無 HOME 啟動、首次啟動 fastembed、上傳＋搜尋、`install.ps1` 對本機假 Release）；Windows CI Release job 待首次 tag 驗證。

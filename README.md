@@ -4,13 +4,13 @@
 </p>
 
 <p align="center">
-  English | <a href="README.zh-TW.md">繁體中文</a> | <a href="https://cawa0505.github.io/OpenDocuments/">📚 Documentation</a>
+  English | <a href="README.zh-TW.md">繁體中文</a> | <a href="https://kevinkerker.github.io/OpenDocuments/">📚 Documentation</a>
 </p>
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License"></a>
   <a href="https://www.rust-lang.org"><img src="https://img.shields.io/badge/Rust-1.80%2B-orange.svg" alt="Rust"></a>
-  <a href="https://github.com/cawa0505/OpenDocuments/releases"><img src="https://img.shields.io/badge/Release-v1.0.0-brightgreen.svg" alt="v1.0.0"></a>
+  <a href="https://github.com/kevinkerker/OpenDocuments/releases"><img src="https://img.shields.io/badge/Release-v1.0.0-brightgreen.svg" alt="v1.0.0"></a>
 </p>
 
 ---
@@ -69,13 +69,16 @@ Install with a single command and launch:
 
 ```bash
 # Option 1: One-line install script (Pre-built binary)
-curl -fsSL https://raw.githubusercontent.com/cawa0505/OpenDocuments/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/kevinkerker/OpenDocuments/main/install.sh | sh
+# Windows (PowerShell):
+#   irm https://raw.githubusercontent.com/kevinkerker/OpenDocuments/main/install.ps1 | iex
 
 # Option 2: Install via Cargo directly from GitHub (Rust developers)
 # Note: Requires system-installed 'protoc' (protobuf compiler). We use RUSTC_BOOTSTRAP=1 to raise the compiler's recursion limit for the heavy Lance/Arrow dependencies, and force the rustix libc backend to avoid nightly attribute errors.
-RUSTC_BOOTSTRAP=1 RUSTFLAGS="-Z min-recursion-limit=512 --cfg=rustix_use_libc" cargo install --git https://github.com/cawa0505/OpenDocuments opendoc --force
+RUSTC_BOOTSTRAP=1 RUSTFLAGS="-Z min-recursion-limit=512 --cfg=rustix_use_libc" cargo install --git https://github.com/kevinkerker/OpenDocuments opendoc --features embedding-fastembed --force
+RUSTC_BOOTSTRAP=1 RUSTFLAGS="-Z min-recursion-limit=512 --cfg=rustix_use_libc" cargo install --git https://github.com/kevinkerker/OpenDocuments opendoc-engine-lancedb --force
 
-# Start OpenDocuments
+# Start OpenDocuments (listens on 127.0.0.1; add --host 0.0.0.0 to expose it)
 opendoc start --port 3000
 ```
 
@@ -91,7 +94,7 @@ All technical specifications and architecture maps are located in [`docs/en/`](d
 - 🗺️ **[R&D Roadmap & Milestones](docs/en/roadmap.md)**: Multi-phase engineering roadmap from single-binary MVP to Tauri 2.0 control cabin and MCP publisher.
 - ⚡ **[Open Source RAG Engine Spec](docs/en/open-source-rag-engine.md)**: Complete Data Plane technical documentation for LanceDB integration and SQL-like pre-filtering.
 - 📐 **[OpenSpec Specifications](openspec/specs/)**: Formal system behavior contracts (Tags, BYOK, Workspace resolution).
-- 📖 **[Official Documentation Site](https://cawa0505.github.io/OpenDocuments/)**: Hosted guides, API references, and deployment tutorials.
+- 📖 **[Official Documentation Site](https://kevinkerker.github.io/OpenDocuments/)**: Hosted guides, API references, and deployment tutorials.
 
 ---
 
@@ -181,8 +184,16 @@ This is the fastest way to run a local AI document search engine with the OpenDo
 Download and install the pre-compiled single binary (Linux / macOS):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/cawa0505/OpenDocuments/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/kevinkerker/OpenDocuments/main/install.sh | sh
 ```
+
+Windows (PowerShell, no administrator rights needed):
+
+```powershell
+irm https://raw.githubusercontent.com/kevinkerker/OpenDocuments/main/install.ps1 | iex
+```
+
+Without a configured LLM provider, the first start downloads a local embedding model (~560 MB) once. See [Deployment](docs-site/guide/deployment.md).
 
 **Option B: Build from Source**
 

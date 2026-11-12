@@ -10,16 +10,35 @@ This guide details how to install the single binary and configure it to run auto
 
 ### Quick Direct Install (Linux & macOS)
 ```bash
-curl -fsSL https://raw.githubusercontent.com/cawa0505/OpenDocuments/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/kevinkerker/OpenDocuments/main/install.sh | sh
 ```
+
+### Quick Direct Install (Windows, PowerShell)
+```powershell
+irm https://raw.githubusercontent.com/kevinkerker/OpenDocuments/main/install.ps1 | iex
+```
+Installs `opendoc.exe` and `opendoc-engine-lancedb.exe` into `%LOCALAPPDATA%\Programs\OpenDocuments` and adds that folder to your user `PATH` (no administrator rights needed). Set `$env:OPENDOC_RELEASE_URL` to install from another release, e.g. a fork.
+
+Both install scripts set up `opendoc` together with its LanceDB engine `opendoc-engine-lancedb`, which `opendoc` starts as a child process from the same `PATH` (or from `OPENDOC_ENGINE_PATH`).
 
 ### Install via Cargo (Rust Developers)
 ::: info
-Requires `protoc` (protobuf compiler) installed on your system. We pass `RUSTC_BOOTSTRAP=1` to allow raising the internal compiler recursion limit for compiling heavy asynchronous dependency trees like `lance` and `arrow`, and pass `--cfg=rustix_use_libc` to prevent compilation errors caused by nightly features in older `rustix` versions.
+Requires `protoc` (protobuf compiler) installed on your system. We pass `RUSTC_BOOTSTRAP=1` to allow raising the internal compiler recursion limit for compiling heavy asynchronous dependency trees like `lance` and `arrow`, and pass `--cfg=rustix_use_libc` (Linux/macOS only) to prevent compilation errors caused by nightly features in older `rustix` versions.
 :::
 ```bash
-RUSTC_BOOTSTRAP=1 RUSTFLAGS="-Z min-recursion-limit=512 --cfg=rustix_use_libc" cargo install --git https://github.com/cawa0505/OpenDocuments opendoc --force
+RUSTC_BOOTSTRAP=1 RUSTFLAGS="-Z min-recursion-limit=512 --cfg=rustix_use_libc" cargo install --git https://github.com/kevinkerker/OpenDocuments opendoc --features embedding-fastembed --force
+RUSTC_BOOTSTRAP=1 RUSTFLAGS="-Z min-recursion-limit=512 --cfg=rustix_use_libc" cargo install --git https://github.com/kevinkerker/OpenDocuments opendoc-engine-lancedb --force
 ```
+
+### Build from Source on Windows
+Native MSVC builds work. Prerequisites: Visual Studio Build Tools (C++ workload, includes CMake), `protoc` (`winget install Google.Protobuf`), Node.js. In PowerShell:
+```powershell
+$env:RUSTC_BOOTSTRAP = "1"; $env:RUSTFLAGS = "-Z min-recursion-limit=512"
+cd apps\webui; npm ci; npm run build; cd ..\..
+cargo install --path crates\opendoc-engine-lancedb --force
+cargo install --path crates\opendoc-cli --features embedding-fastembed --force
+```
+`cmake` must be on `PATH`; the copy bundled with the Build Tools lives under `Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin`.
 
 ### Build from Source
 ```bash
@@ -37,6 +56,10 @@ To run the unified server manually:
 opendoc start --port 3000
 ```
 Your WebUI will be served instantly at `http://localhost:3000` with zero external directory requirements!
+
+The server listens on `127.0.0.1` only. To reach it from other machines, start it with `--host 0.0.0.0` (and set `server.api_key`).
+
+**First start without an LLM provider:** release builds fall back to the built-in local embedder (fastembed, BGE-M3). The model (~560 MB) is downloaded once into `~/.opendocuments/models`, and `embedding_backend = "fastembed"` is written to `config.toml`. This only happens while no documents are indexed; switching embedders later requires a reindex.
 
 ---
 
