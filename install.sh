@@ -1,11 +1,11 @@
 #!/bin/sh
 # OpenDocuments 單一 Binary 跨平台安裝腳本 (Linux / macOS)
 # 支援平台：Linux (x86_64, aarch64) 與 macOS (x86_64, Apple Silicon)
-# 使用方式：curl -fsSL https://raw.githubusercontent.com/cawa0505/OpenDocuments/main/install.sh | sh
+# 使用方式：curl -fsSL https://raw.githubusercontent.com/kevinkerker/OpenDocuments/main/install.sh | sh
 
 set -eu
 
-REPO="cawa0505/OpenDocuments"
+REPO="kevinkerker/OpenDocuments"
 REPO_URL="https://github.com/$REPO"
 APP_NAME="opendoc"
 
@@ -55,6 +55,10 @@ esac
 
 ASSET_NAME="opendoc-${OS_RELEASE}-${ARCH_RELEASE}"
 DOWNLOAD_URL="${REPO_URL}/releases/latest/download/${ASSET_NAME}"
+# opendoc 以子程序啟動的 LanceDB 引擎（須與 opendoc 位於同一 PATH）
+ENGINE_NAME="opendoc-engine-lancedb"
+ENGINE_ASSET="${ENGINE_NAME}-${OS_RELEASE}-${ARCH_RELEASE}"
+ENGINE_URL="${REPO_URL}/releases/latest/download/${ENGINE_ASSET}"
 CHECKSUMS_URL="${REPO_URL}/releases/latest/download/checksums.txt"
 
 # 建立暫存資料夾
@@ -79,7 +83,7 @@ download_file() {
 }
 
 echo "⬇️ 正在從 GitHub 下載最新版本 OpenDocuments..."
-if ! download_file "$DOWNLOAD_URL" "$TMP_DIR/$ASSET_NAME"; then
+if ! download_file "$DOWNLOAD_URL" "$TMP_DIR/$ASSET_NAME" || ! download_file "$ENGINE_URL" "$TMP_DIR/$ENGINE_ASSET"; then
     echo "" >&2
     echo "❌ 錯誤：無法從 GitHub 下載預編譯的二進位檔 (可能是該平台尚未發佈 Release 檔案)。" >&2
     echo "💡 正在協助引導自原始碼編譯安裝流程..." >&2
@@ -138,13 +142,14 @@ if ! download_file "$DOWNLOAD_URL" "$TMP_DIR/$ASSET_NAME"; then
     fi
 
     echo "⚙️  正在為您啟動 Cargo 編譯並安裝 OpenDocuments (這將花費幾分鐘)..." >&2
-    echo "⚡ 執行指令: mkdir -p ~/.cargo/tmp && TMPDIR=~/.cargo/tmp RUSTC_BOOTSTRAP=1 RUSTFLAGS=\"-Z min-recursion-limit=512 --cfg=rustix_use_libc\" cargo install --git https://github.com/cawa0505/OpenDocuments opendoc --force" >&2
+    echo "⚡ 執行指令: mkdir -p ~/.cargo/tmp && TMPDIR=~/.cargo/tmp RUSTC_BOOTSTRAP=1 RUSTFLAGS=\"-Z min-recursion-limit=512 --cfg=rustix_use_libc\" cargo install --git $REPO_URL opendoc --features embedding-fastembed --force && cargo install --git $REPO_URL $ENGINE_NAME --force" >&2
     echo "" >&2
 
     mkdir -p "$HOME/.cargo/tmp"
-    if TMPDIR="$HOME/.cargo/tmp" RUSTC_BOOTSTRAP=1 RUSTFLAGS="-Z min-recursion-limit=512 --cfg=rustix_use_libc" cargo install --git https://github.com/cawa0505/OpenDocuments opendoc --force; then
+    if TMPDIR="$HOME/.cargo/tmp" RUSTC_BOOTSTRAP=1 RUSTFLAGS="-Z min-recursion-limit=512 --cfg=rustix_use_libc" cargo install --git "$REPO_URL" opendoc --features embedding-fastembed --force \
+        && TMPDIR="$HOME/.cargo/tmp" RUSTC_BOOTSTRAP=1 RUSTFLAGS="-Z min-recursion-limit=512 --cfg=rustix_use_libc" cargo install --git "$REPO_URL" "$ENGINE_NAME" --force; then
         echo "" >&2
-        echo "🎉 OpenDocuments (opendoc) 已透過 Cargo 成功編譯安裝至 ~/.cargo/bin/opendoc ！" >&2
+        echo "🎉 OpenDocuments (opendoc + $ENGINE_NAME) 已透過 Cargo 成功編譯安裝至 ~/.cargo/bin ！" >&2
         echo "💡 請確保您的 PATH 包含 ~/.cargo/bin" >&2
         exit 0
     else
@@ -166,15 +171,17 @@ if download_file "$CHECKSUMS_URL" "$TMP_DIR/checksums.txt" >/dev/null 2>&1; then
     fi
 
     if [ -n "$HASH_TOOL" ]; then
-        WANTED_HASH="$(grep "${ASSET_NAME}$" "$TMP_DIR/checksums.txt" | cut -d' ' -f1)"
-        CALCULATED_HASH="$($HASH_TOOL "$TMP_DIR/$ASSET_NAME" | cut -d' ' -f1)"
-        
-        if [ -n "$WANTED_HASH" ] && [ "$WANTED_HASH" = "$CALCULATED_HASH" ]; then
-            echo "✅ Checksum 驗證成功！"
-        else
-            echo "❌ 錯誤：下載的二進位檔 Checksum 驗證不符！安全攔截中斷安裝。" >&2
-            exit 1
-        fi
+        for CHECK_ASSET in "$ASSET_NAME" "$ENGINE_ASSET"; do
+            WANTED_HASH="$(grep " \*\{0,1\}${CHECK_ASSET}$" "$TMP_DIR/checksums.txt" | cut -d' ' -f1)"
+            CALCULATED_HASH="$($HASH_TOOL "$TMP_DIR/$CHECK_ASSET" | cut -d' ' -f1)"
+
+            if [ -n "$WANTED_HASH" ] && [ "$WANTED_HASH" = "$CALCULATED_HASH" ]; then
+                echo "✅ Checksum 驗證成功：$CHECK_ASSET"
+            else
+                echo "❌ 錯誤：$CHECK_ASSET Checksum 驗證不符！安全攔截中斷安裝。" >&2
+                exit 1
+            fi
+        done
     else
         echo "⚠️ 警報：本機未安裝 sha256sum 或 shasum，跳過 Checksum 安全校驗。"
     fi
@@ -184,7 +191,8 @@ fi
 
 # 移動檔案至安裝目錄並設定執行權限
 mv "$TMP_DIR/$ASSET_NAME" "$INSTALL_DIR/$APP_NAME"
-chmod +x "$INSTALL_DIR/$APP_NAME"
+mv "$TMP_DIR/$ENGINE_ASSET" "$INSTALL_DIR/$ENGINE_NAME"
+chmod +x "$INSTALL_DIR/$APP_NAME" "$INSTALL_DIR/$ENGINE_NAME"
 
 # 檢查環境變數並提示加入 PATH
 IN_PATH=0
