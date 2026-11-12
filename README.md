@@ -78,7 +78,7 @@ curl -fsSL https://raw.githubusercontent.com/kevinkerker/OpenDocuments/main/inst
 RUSTC_BOOTSTRAP=1 RUSTFLAGS="-Z min-recursion-limit=512 --cfg=rustix_use_libc" cargo install --git https://github.com/kevinkerker/OpenDocuments opendoc --features embedding-fastembed --force
 RUSTC_BOOTSTRAP=1 RUSTFLAGS="-Z min-recursion-limit=512 --cfg=rustix_use_libc" cargo install --git https://github.com/kevinkerker/OpenDocuments opendoc-engine-lancedb --force
 
-# Start OpenDocuments (listens on 127.0.0.1; add --host 0.0.0.0 to expose it)
+# Start OpenDocuments (listens on 127.0.0.1; --host 0.0.0.0 requires server.api_key)
 opendoc start --port 3000
 ```
 

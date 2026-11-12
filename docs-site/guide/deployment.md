@@ -57,7 +57,7 @@ opendoc start --port 3000
 ```
 Your WebUI will be served instantly at `http://localhost:3000` with zero external directory requirements!
 
-The server listens on `127.0.0.1` only. To reach it from other machines, start it with `--host 0.0.0.0` (and set `server.api_key`).
+The server listens on `127.0.0.1` only and rejects requests from other websites (foreign `Origin`) and foreign `Host` names (DNS rebinding). To reach it from other machines, set `server.api_key` in `config.toml` and start it with `--host 0.0.0.0`; without a key that start is refused. Clients then send the key as `X-API-Key` or `Authorization: Bearer <key>`; the WebUI asks for it on first load.
 
 **First start without an LLM provider:** release builds fall back to the built-in local embedder (fastembed, BGE-M3). The model (~560 MB) is downloaded once into `~/.opendocuments/models`, and `embedding_backend = "fastembed"` is written to `config.toml`. This only happens while no documents are indexed; switching embedders later requires a reindex.
 

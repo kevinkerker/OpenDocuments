@@ -11,7 +11,7 @@ opendoc-llm = { path = "../opendoc-llm" }
 opendoc-connector-clouddrive = { path = "../opendoc-connector-clouddrive" }
 tokio = { version = "1.0", features = ["full"] }
 axum = { version = "0.7", features = ["multipart"] }
-tower-http = { version = "0.5", features = ["fs", "cors"] }
+tower-http = { version = "0.5", features = ["fs"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 chrono = { version = "0.4", features = ["serde"] }

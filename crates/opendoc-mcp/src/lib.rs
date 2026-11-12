@@ -4,6 +4,7 @@
 
 pub mod utils;
 pub mod handlers;
+mod access;
 
 // removed unused imports
 use handlers::tags::{list_tags_handler, create_tag_handler, delete_tag_handler, tag_document_handler, untag_document_handler};
@@ -60,7 +61,6 @@ use serde_json::{json, Value}; // restored unused json/Value
 use async_trait::async_trait;
 use opendoc_connector_clouddrive::CloudDrive;
 use tokio::sync::{mpsc, RwLock};
-use tower_http::cors::CorsLayer;
 use uuid::Uuid;
 
 // ── Search backend trait ─────────────────────────────────────
@@ -763,6 +763,7 @@ pub async fn start_mcp_and_api_server(
     config_manager: Arc<opendoc_storage::ConfigManager>,
     db_pool: sqlx::SqlitePool,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    let policy = access::AccessPolicy::for_bind(&addr, &config_manager.get_config().await.server.api_key)?;
     println!("🚀 [OpenDocuments] 大一統伺服器正啟動於 http://{addr}");
 
     let mcp_state = Arc::new(McpState {
@@ -832,7 +833,7 @@ pub async fn start_mcp_and_api_server(
         .route("/mcp/message", post(message_handler))
         .route("/api/mcp/message", post(message_handler))
         .fallback(static_handler)
-        .layer(CorsLayer::permissive())
+        .layer(axum::middleware::from_fn_with_state(policy, access::access_guard))
         .with_state(mcp_state);
 
     let listener = tokio::net::TcpListener::bind(addr).await?;
