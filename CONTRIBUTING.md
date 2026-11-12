@@ -16,7 +16,7 @@ Thank you for your interest in contributing to OpenDocuments! OpenDocuments is a
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/cawa0505/OpenDocuments.git
+git clone https://github.com/kevinkerker/OpenDocuments.git
 cd OpenDocuments
 
 # 2. Build and install (compiles frontend and installs the `opendoc` binary to ~/.cargo/bin/)

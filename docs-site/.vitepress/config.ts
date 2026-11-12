@@ -12,11 +12,11 @@ export default defineConfig({
     ['meta', { property: 'og:title', content: 'OpenDocuments - Self-Hosted RAG Platform for AI Document Search' }],
     ['meta', { property: 'og:description', content: 'Open source RAG platform that connects local files and web sources, then answers questions with citations.' }],
     ['meta', { property: 'og:type', content: 'website' }],
-    ['meta', { property: 'og:url', content: 'https://cawa0505.github.io/OpenDocuments/' }],
+    ['meta', { property: 'og:url', content: 'https://kevinkerker.github.io/OpenDocuments/' }],
     ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
     ['meta', { name: 'twitter:title', content: 'OpenDocuments - Self-Hosted RAG Platform' }],
     ['meta', { name: 'twitter:description', content: 'Self-hosted AI document search across local files and web sources.' }],
-    ['link', { rel: 'canonical', href: 'https://cawa0505.github.io/OpenDocuments/' }],
+    ['link', { rel: 'canonical', href: 'https://kevinkerker.github.io/OpenDocuments/' }],
     ['script', { type: 'application/ld+json' }, JSON.stringify({
       '@context': 'https://schema.org',
       '@type': 'SoftwareApplication',
@@ -25,8 +25,8 @@ export default defineConfig({
       operatingSystem: 'macOS, Linux, Windows',
       description: 'Open source self-hosted RAG platform for AI document search with source citations.',
       softwareVersion: '0.3.0',
-      license: 'https://github.com/cawa0505/OpenDocuments/blob/main/LICENSE',
-      codeRepository: 'https://github.com/cawa0505/OpenDocuments',
+      license: 'https://github.com/kevinkerker/OpenDocuments/blob/main/LICENSE',
+      codeRepository: 'https://github.com/kevinkerker/OpenDocuments',
       programmingLanguage: 'TypeScript',
       offers: {
         '@type': 'Offer',
@@ -45,14 +45,14 @@ export default defineConfig({
   ],
 
   sitemap: {
-    hostname: 'https://cawa0505.github.io/OpenDocuments/',
+    hostname: 'https://kevinkerker.github.io/OpenDocuments/',
   },
 
   themeConfig: {
     nav: [
       { text: 'Guide', link: '/guide/' },
       { text: 'API', link: '/api/' },
-      { text: 'GitHub', link: 'https://github.com/cawa0505/OpenDocuments' },
+      { text: 'GitHub', link: 'https://github.com/kevinkerker/OpenDocuments' },
     ],
     sidebar: [
       { text: 'Getting Started', items: [
@@ -68,10 +68,10 @@ export default defineConfig({
       ]},
     ],
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/cawa0505/OpenDocuments' },
+      { icon: 'github', link: 'https://github.com/kevinkerker/OpenDocuments' },
     ],
     editLink: {
-      pattern: 'https://github.com/cawa0505/OpenDocuments/edit/main/docs-site/:path',
+      pattern: 'https://github.com/kevinkerker/OpenDocuments/edit/main/docs-site/:path',
     },
     footer: {
       message: 'Released under the MIT License.',

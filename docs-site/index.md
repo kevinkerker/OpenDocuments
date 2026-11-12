@@ -73,7 +73,7 @@ Unlike cloud-only solutions, OpenDocuments can run **entirely on your own infras
 
 ```bash
 # One-line binary installation (Linux / macOS)
-curl -fsSL https://raw.githubusercontent.com/cawa0505/OpenDocuments/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/kevinkerker/OpenDocuments/main/install.sh | sh
 
 # Start the unified server on port 8080
 opendoc start --port 8080

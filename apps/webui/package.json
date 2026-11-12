@@ -42,15 +42,15 @@
     "web-ui",
     "admin-dashboard"
   ],
-  "homepage": "https://github.com/cawa0505/OpenDocuments#readme",
+  "homepage": "https://github.com/kevinkerker/OpenDocuments#readme",
   "bugs": {
-    "url": "https://github.com/cawa0505/OpenDocuments/issues"
+    "url": "https://github.com/kevinkerker/OpenDocuments/issues"
   },
   "author": "OpenDocuments Contributors",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/cawa0505/OpenDocuments.git",
+    "url": "https://github.com/kevinkerker/OpenDocuments.git",
     "directory": "packages/web"
   }
 }

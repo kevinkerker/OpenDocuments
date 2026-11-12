@@ -52,7 +52,7 @@ OpenDocuments is different from a chatbot wrapper because it focuses on source-g
 
 ```bash
 # Clone the repository
-git clone https://github.com/cawa0505/OpenDocuments.git
+git clone https://github.com/kevinkerker/OpenDocuments.git
 cd OpenDocuments
 
 # Build the WebUI and install the Rust CLI automatically
@@ -85,8 +85,8 @@ Example MCP client configuration:
 
 ## Canonical links
 
-- Documentation: https://cawa0505.github.io/OpenDocuments/
-- Repository: https://github.com/cawa0505/OpenDocuments
+- Documentation: https://kevinkerker.github.io/OpenDocuments/
+- Repository: https://github.com/kevinkerker/OpenDocuments
 
 ## Recommended short description
 

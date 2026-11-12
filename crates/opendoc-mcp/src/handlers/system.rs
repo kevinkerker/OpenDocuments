@@ -36,7 +36,7 @@ pub async fn version_check_handler() -> Result<Json<VersionCheckResponse>, Statu
 
     // 向 GitHub 抓取最新 Release Tag；任何失敗都視為「無更新」，不誤導使用者
     let response = client
-        .get("https://api.github.com/repos/cawa0505/OpenDocuments/releases/latest")
+        .get("https://api.github.com/repos/kevinkerker/OpenDocuments/releases/latest")
         .send()
         .await;
 
@@ -57,7 +57,7 @@ pub async fn version_check_handler() -> Result<Json<VersionCheckResponse>, Statu
     // 只有 latest > current 才算有更新；等於、小於（dev/rollback）或查詢失敗都隱藏
     let has_update = version_is_newer(&latest_version, &current_version);
     let update_command =
-        "cargo install --git https://github.com/cawa0505/OpenDocuments.git --force".to_string();
+        "cargo install --git https://github.com/kevinkerker/OpenDocuments.git --force".to_string();
 
     Ok(Json(VersionCheckResponse {
         current_version,
