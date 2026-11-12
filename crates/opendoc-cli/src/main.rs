@@ -906,7 +906,7 @@ match sub {
         Commands::InstallOpencode { host: _, port: _ } => {
             println!("🚀 啟動大一統 Rust 版 MCP 自動化註冊 (OpenCode)..");
             
-            let home = match std::env::var("HOME") {
+            let home = match std::env::var("HOME").or_else(|_| std::env::var("USERPROFILE")) {
                 Ok(h) => h,
                 Err(_) => {
                     eprintln!("💥 無法取得使用者家目錄 HOME 環境變數");

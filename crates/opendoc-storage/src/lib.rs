@@ -586,13 +586,29 @@ impl ConfigManager {
 mod dirs {
     use std::path::PathBuf;
     pub fn home_dir() -> Option<PathBuf> {
-        std::env::var("HOME").ok().map(PathBuf::from)
+        resolve(std::env::var_os("HOME"), std::env::var_os("USERPROFILE"))
+    }
+
+    /// Windows 預設沒有 HOME，退回 USERPROFILE。
+    pub(super) fn resolve(home: Option<std::ffi::OsString>, profile: Option<std::ffi::OsString>) -> Option<PathBuf> {
+        home.filter(|h| !h.is_empty())
+            .or(profile.filter(|p| !p.is_empty()))
+            .map(PathBuf::from)
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn home_dir_falls_back_to_userprofile() {
+        let os = |s: &str| Some(std::ffi::OsString::from(s));
+        assert_eq!(dirs::resolve(os("/home/a"), os("C:\\Users\\a")), Some(PathBuf::from("/home/a")));
+        assert_eq!(dirs::resolve(None, os("C:\\Users\\a")), Some(PathBuf::from("C:\\Users\\a")));
+        assert_eq!(dirs::resolve(os(""), os("C:\\Users\\a")), Some(PathBuf::from("C:\\Users\\a")));
+        assert_eq!(dirs::resolve(None, None), None);
+    }
 
     #[tokio::test]
     async fn test_config_manager_load_or_init() {
