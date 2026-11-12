@@ -758,12 +758,11 @@ async fn static_handler(uri: Uri) -> impl IntoResponse {
 }
 
 pub async fn start_mcp_and_api_server(
-    port: u16,
+    addr: SocketAddr,
     search: Arc<dyn SearchBackend>,
     config_manager: Arc<opendoc_storage::ConfigManager>,
     db_pool: sqlx::SqlitePool,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    let addr = SocketAddr::from(([0, 0, 0, 0], port));
     println!("🚀 [OpenDocuments] 大一統伺服器正啟動於 http://{addr}");
 
     let mcp_state = Arc::new(McpState {

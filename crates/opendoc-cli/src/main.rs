@@ -88,6 +88,10 @@ enum Commands {
         #[arg(short, long, default_value_t = 3000)]
         port: u16,
 
+        /// 監聽位址；預設僅本機。對外提供服務時明確指定 0.0.0.0
+        #[arg(long, default_value = "127.0.0.1")]
+        host: std::net::IpAddr,
+
         /// 是否僅啟動 MCP Stdio 本地服務 (CQRS Write-Only 模式)
         #[arg(long)]
         mcp_only: bool,
@@ -1041,7 +1045,7 @@ match sub {
             println!("   - opendoc (Local Stdio) -> {} start --mcp-only", format!("{home}/.cargo/bin/opendoc"));
             println!("👉 請重啟你的 OpenCode 客戶端以載入大一統 Rust 向量引擎！");
         }
-        Commands::Start { port, mcp_only } => {
+        Commands::Start { port, host, mcp_only } => {
             let db_pool = match tokio::task::block_in_place(|| {
                 tokio::runtime::Handle::current().block_on(config_manager.init_db_pool())
             }) {
@@ -1061,7 +1065,7 @@ match sub {
                 opendoc_mcp::run_mcp_stdio_server(search, Arc::clone(&config_manager), db_pool).await?;
             } else {
                 println!("🚀 正在啟動大一統 API & MCP 伺服器端 (Port: {port})..");
-                start_mcp_and_api_server(port, search, Arc::clone(&config_manager), db_pool).await?;
+                start_mcp_and_api_server(std::net::SocketAddr::new(host, port), search, Arc::clone(&config_manager), db_pool).await?;
             }
         }
         Commands::Stop => {
@@ -1113,4 +1117,23 @@ match sub {
     }
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn start_binds_localhost_by_default() {
+        let Commands::Start { host, port, .. } = Cli::try_parse_from(["opendoc", "start"]).unwrap().command else {
+            panic!("expected start");
+        };
+        assert_eq!(host, std::net::IpAddr::from([127, 0, 0, 1]));
+        assert_eq!(port, 3000);
+        let Commands::Start { host, .. } = Cli::try_parse_from(["opendoc", "start", "--host", "0.0.0.0"]).unwrap().command else {
+            panic!("expected start");
+        };
+        assert_eq!(host, std::net::IpAddr::from([0, 0, 0, 0]));
+    }
+
 }
